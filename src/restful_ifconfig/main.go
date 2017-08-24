@@ -1,12 +1,12 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
-    "net"
-    "encoding/json"
-    "io/ioutil"
+  "fmt"
+  "log"
+  "net/http"
+  "net"
+  "encoding/json"
+  "io/ioutil"
 )
 
 const DESC_PATH string = "./README.md"
@@ -24,21 +24,24 @@ type Device struct {
 
 func main( ) {
   log.Printf( "Server started" )
-
-  http.HandleFunc( "/help", helpHandler )
-  http.HandleFunc( "/list", listHandler )
-  http.HandleFunc( "/", helpHandler )
-
-  log.Fatal( http.ListenAndServe( PORT, nil ) )
+  StartServer( )
 }
 
-func helpHandler( w http.ResponseWriter, r *http.Request ) {
+func StartServer( ) {
+  http.HandleFunc( "/help", HelpHandler )
+  http.HandleFunc( "/list", ListHandler )
+  http.HandleFunc( "/", HelpHandler )
+
+  http.ListenAndServe( PORT, nil )
+}
+
+func HelpHandler( w http.ResponseWriter, r *http.Request ) {
   log.Println( "Called help, method: " + r.Method )
 
   desc, err := ioutil.ReadFile( DESC_PATH )
 
   if err != nil {
-    errorHandler( w, r, http.StatusInternalServerError, "Failed to read README file" )
+    ErrorHandler( w, r, http.StatusInternalServerError, "Failed to read README file" )
     return
   } else {
     w.WriteHeader( http.StatusOK )
@@ -46,7 +49,7 @@ func helpHandler( w http.ResponseWriter, r *http.Request ) {
   }
 }
 
-func listHandler( w http.ResponseWriter, r *http.Request ) {
+func ListHandler( w http.ResponseWriter, r *http.Request ) {
   r.ParseForm( )
 
   verbose_p := r.Form.Get( "verbose" )
@@ -57,7 +60,7 @@ func listHandler( w http.ResponseWriter, r *http.Request ) {
   l, err := net.Interfaces( )
 
   if err != nil {
-    errorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
+    ErrorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
     return
   } else {
     w.WriteHeader( http.StatusOK )
@@ -67,7 +70,7 @@ func listHandler( w http.ResponseWriter, r *http.Request ) {
     dev, err := GetDevice( f )
 
     if err != nil {
-      errorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
+      ErrorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
       return
     }
 
@@ -84,11 +87,10 @@ func listHandler( w http.ResponseWriter, r *http.Request ) {
         fmt.Fprintln( w, dev.NetDev.Name )
       }
     }
-
   }
 }
 
-func errorHandler( w http.ResponseWriter, r *http.Request, status int, text string ) {
+func ErrorHandler( w http.ResponseWriter, r *http.Request, status int, text string ) {
   w.WriteHeader( status )
   fmt.Fprint( w, text )
 }

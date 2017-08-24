@@ -10,7 +10,7 @@ RESTful API server to list network interfaces of the host machine
 If URL doesn't match any of the described paths, returns readme.
 
 # Supported `GET` parameters
-* `json=true` -- return list of network devices in a JSON format
+* `json=true` -- return list of network devices in a JSON format (uppercased)
 * `verbose=true` -- if not set, returns only names of interfaces, full info otherwise
 
 # Return codes
@@ -21,4 +21,8 @@ If URL doesn't match any of the described paths, returns readme.
 `localhost:32432/list?json=true`
 
 # Run on host
-* docker run --net=host -it yakkodash/restful_ifconfig
+`docker run --net=host -it yakkodash/restful_ifconfig`
+
+# Build on host
+`docker build -t yakkodash/restful_ifconfig:latest .`
+

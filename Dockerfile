@@ -6,7 +6,7 @@ ENV TARGET restful_ifconfig
 
 RUN go get -d -v $TARGET
 RUN go install $TARGET
-RUN go test $TARGET
+RUN go test -v $TARGET
 
 ENTRYPOINT /go/bin/$TARGET
 
