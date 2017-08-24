@@ -7,10 +7,10 @@ build:
 	$(DOCK) build -t $(TARGET) $(CURDIR)
 
 run: build
-	$(DOCK) run -it $(TARGET)
+	$(DOCK) run --net=host -it $(TARGET) -rm
 	
 .PHONY: clean
 clean:
-	$(DOCK) rm $(shell sudo docker ps -a -q -f status=exited)
-	$(DOCK) rmi $(shell sudo docker images -q)
+	$(DOCK) rmi -f $(shell sudo docker images -q)
+	$(DOCK) rm -f $(shell sudo docker ps -a -q -f status=exited)
 
