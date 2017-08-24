@@ -9,8 +9,8 @@ import (
     "io/ioutil"
 )
 
-const desc_path string = "./README.md"
-const port string = ":32432"
+const DESC_PATH string = "./README.md"
+const PORT string = ":32432"
 
 type Device struct {
   NetDev          net.Interface
@@ -25,21 +25,28 @@ type Device struct {
 func main( ) {
   log.Printf( "Server started" )
 
-  http.HandleFunc( "/help", Help )
-  http.HandleFunc( "/list", List )
+  http.HandleFunc( "/help", helpHandler )
+  http.HandleFunc( "/list", listHandler )
+  http.HandleFunc( "/", helpHandler )
 
-  log.Fatal( http.ListenAndServe( port, nil ) )
+  log.Fatal( http.ListenAndServe( PORT, nil ) )
 }
 
-func Help( w http.ResponseWriter, r *http.Request ) {
-
-  desc, _ := ioutil.ReadFile( desc_path )
-  fmt.Fprintf( w, string( desc ) )
-
+func helpHandler( w http.ResponseWriter, r *http.Request ) {
   log.Println( "Called help, method: " + r.Method )
+
+  desc, err := ioutil.ReadFile( DESC_PATH )
+
+  if err != nil {
+    errorHandler( w, r, http.StatusInternalServerError, "Failed to read README file" )
+    return
+  } else {
+    w.WriteHeader( http.StatusOK )
+    fmt.Fprintf( w, string( desc ) )
+  }
 }
 
-func List( w http.ResponseWriter, r *http.Request ) {
+func listHandler( w http.ResponseWriter, r *http.Request ) {
   r.ParseForm( )
 
   verbose_p := r.Form.Get( "verbose" )
@@ -50,11 +57,20 @@ func List( w http.ResponseWriter, r *http.Request ) {
   l, err := net.Interfaces( )
 
   if err != nil {
-    panic(err)
+    errorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
+    return
+  } else {
+    w.WriteHeader( http.StatusOK )
   }
 
   for _, f := range l {
-    dev := GetDevice( f )
+    dev, err := GetDevice( f )
+
+    if err != nil {
+      errorHandler( w, r, http.StatusInternalServerError, "Failed to get network interfaces data" )
+      return
+    }
+
     if json_p == "true" {
       if verbose_p == "true" {
         json.NewEncoder( w ).Encode( dev )
@@ -68,18 +84,39 @@ func List( w http.ResponseWriter, r *http.Request ) {
         fmt.Fprintln( w, dev.NetDev.Name )
       }
     }
+
   }
 }
 
-func GetDevice( i net.Interface ) ( Device ) {
+func errorHandler( w http.ResponseWriter, r *http.Request, status int, text string ) {
+  w.WriteHeader( status )
+  fmt.Fprint( w, text )
+}
+
+func GetDevice( i net.Interface ) ( Device, error ) {
   var dev Device
+
   dev.NetDev = i
   dev.HardwareAddrStr = i.HardwareAddr.String( )
   dev.FlagsStr = i.Flags.String( )
-  dev.Uniaddr, _ = i.Addrs( )
-  dev.Muladdr, _ = i.MulticastAddrs( )
 
-  return dev
+  addrs, err := i.Addrs( )
+
+  if err != nil {
+    return dev, err
+  } else {
+    dev.Uniaddr = addrs
+  }
+
+  addrs, err = i.MulticastAddrs( )
+
+  if err != nil {
+    return dev, err
+  } else {
+    dev.Muladdr = addrs
+  }
+
+  return dev, err
 }
 
 // Stringers for Device

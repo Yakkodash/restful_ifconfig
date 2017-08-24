@@ -13,6 +13,10 @@ If URL doesn't match any of the described paths, returns readme.
 * `json=true` -- return list of network devices in a JSON format
 * `verbose=true` -- if not set, returns only names of interfaces, full info otherwise
 
+# Return codes
+* `200` -- on success
+* `520` -- on errors
+
 # Usage example
 `localhost:32432/list?json=true`
 
