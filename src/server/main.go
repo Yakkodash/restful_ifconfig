@@ -6,16 +6,19 @@ import (
     "net/http"
     "net"
     "encoding/json"
+    "io/ioutil"
 )
 
+const desc_path string = "./README.md"
+
 type Device struct {
-  NetDev        net.Interface
-  HardwareAddr  net.HardwareAddr
+  NetDev          net.Interface
+  HardwareAddr    net.HardwareAddr
   HardwareAddrStr string
-  Flags         net.Flags
-  FlagsStr      string
-  Uniaddr       []net.Addr
-  Muladdr       []net.Addr
+  Flags           net.Flags
+  FlagsStr        string
+  Uniaddr         []net.Addr
+  Muladdr         []net.Addr
 }
 
 func main( ) {
@@ -28,11 +31,9 @@ func main( ) {
 }
 
 func Help( w http.ResponseWriter, r *http.Request ) {
-  fmt.Fprintf( w, "#Description\n" +
-                  "\tRESTful API to list network interfaces of the host machine.\n" +
-                  "#Synopsis\n" +
-                  "\tapi_address/list[?json=true|verbose=true]\n" +
-                  "\tapi_address/help\n" )
+
+  desc, _ := ioutil.ReadFile( desc_path )
+  fmt.Fprintf( w, string( desc ) )
 
   log.Println( "Called help, method: " + r.Method )
 }
@@ -94,7 +95,7 @@ func( d Device ) String( ) string {
   }
 
   return fmt.Sprintf( "%s\n\tUnicast addresses: %s\n\tMulticast addresses: %s",
-    InterfaceString( d.NetDev ), muladdr, uniaddr )
+    InterfaceString( d.NetDev ), uniaddr, muladdr )
 }
 
 func InterfaceString( i net.Interface ) string {
