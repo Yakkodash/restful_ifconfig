@@ -10,7 +10,7 @@ import (
 )
 
 const desc_path string = "./README.md"
-const port string = ":8080"
+const port string = ":32432"
 
 type Device struct {
   NetDev          net.Interface
