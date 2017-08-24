@@ -1,13 +1,14 @@
-TARGET = server
+TARGET = restful_ifconfig
 DOCK = sudo docker
+USERNAME = yakkodash
 
 all: build 
 
 build: 
-	$(DOCK) build -t $(TARGET) $(CURDIR)
+	$(DOCK) build -t $(USERNAME)/$(TARGET):latest $(CURDIR)
 
 run: build
-	$(DOCK) run --net=host -it $(TARGET) -rm
+	$(DOCK) run --net=host -it $(USERNAME)/$(TARGET) -rm
 	
 .PHONY: clean
 clean:

@@ -2,7 +2,7 @@ FROM golang
 
 ADD . /go/
 
-ENV TARGET server
+ENV TARGET restful_ifconfig
 
 RUN go get -d -v $TARGET
 RUN go install $TARGET

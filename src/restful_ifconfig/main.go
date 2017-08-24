@@ -10,6 +10,7 @@ import (
 )
 
 const desc_path string = "./README.md"
+const port string = ":8080"
 
 type Device struct {
   NetDev          net.Interface
@@ -22,12 +23,12 @@ type Device struct {
 }
 
 func main( ) {
-  log.Printf("Server started")
+  log.Printf( "Server started" )
 
-  http.HandleFunc("/help", Help)
-  http.HandleFunc("/list", List)
+  http.HandleFunc( "/help", Help )
+  http.HandleFunc( "/list", List )
 
-  log.Fatal(http.ListenAndServe(":8080", nil))
+  log.Fatal( http.ListenAndServe( port, nil ) )
 }
 
 func Help( w http.ResponseWriter, r *http.Request ) {
