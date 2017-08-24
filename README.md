@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Yakkodash/restful_ifconfig.svg?branch=master)](https://travis-ci.org/Yakkodash/restful_ifconfig)
+
 # Description
 RESTful API server to list network interfaces of the host machine
 
